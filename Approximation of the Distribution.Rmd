@@ -1,0 +1,105 @@
+---
+title: "Consider approximation of the distribution function"
+author: "meijun-shuang"
+date: "2020/3/25"
+output: pdf_document
+
+abstract: "This report consider approximation of the distribution function of$N(0, 1)$,
+\begin{equation}\Phi(t) = \int_{-\infty}^t \frac{1}{\sqrt{2\pi}} e^{-y^2 / 2} \dd y,
+(\#eq:cdf)\end{equation} by the Monte Carlo methods using R studio and wrote the report through R markdown".
+
+keywords: Monte Carlo, R Markdown, Rstudio
+
+# Introduction {#sec:intro}
+
+ This report consider approximation of the distribution fuction of $N(0,1)$ by the Monte Carlo methods.The Monte Carlo method is also known as random sampling, statistical testing or stochastic simulation. It is a method of simulating random phenomena by computer, obtaining experimental data through simulation experiments, and then making analysis and inference to obtain the rules of some phenomena or the solution of some problems. Through this study, I learned the monte carlo method, and learned how to operate it in Rstudio.
+
+# Math Equations {#sec:math}
+The consider approximation of the distribution function of$N(0, 1)$
+\begin{equation}
+\hat\Phi(t) = \frac{1}{n} \sum_{i=1}^n I(X_i \le t),
+\end{equation}
+where $X_i$'s are a random sample from $N(0, 1)$, and $I(\cdot)$ is
+the indicator function.
+
+# Results {#sec:resu}
+ I experiment with the approximation at
+$n \in \{10^2, 10^3, 10^4\}$ at
+$t \in \{0.0, 0.67, 0.84, 1.28, 1.65, 2.32, 2.58, 3.09, 3.72\}$ to form a table.
+
+The following is the r code
+
+t=c(0,0.67,0.84,1.28,1.65,2.32,2.58,3.09,3.72)
+n=c(100,1000,10000)
+p=matrix(0,nrow=9,ncol=3)
+a=0
+for (i in 1:9)
+  for(j in 1:3){
+    a=a+1
+    num=rnorm(n[j],0,1)
+    p[i,j]=mean(num<t[i])
+    print(a)
+  }
+rownames(p)<-t
+colnames(p)<-n
+pcycle=array(0,dim=c(9,3,100))
+
+for (i in 1:9)
+  for(j in 1:3)
+    for (k in 1:100){
+      a=a+1
+      num=rnorm(n[j],0,1)
+      pcycle[i,j,k]=mean(num<t[i])
+      print(a)
+    }
+dimnames(pcycle)[[1]]<-t
+dimnames(pcycle)[[2]]<-n
+
+V1<-c(1:100)
+plot_data<-data.frame(V1)
+k=0
+for (i in 1:9)
+  for (j in 1:3){
+    k=k+1
+    print(k)
+    plot_data[ ,k]<-pcycle[i,j, ]
+    plot_data[ ,k]<-plot_data[ ,k]-pnorm(t[i])
+  }
+label<-data.frame(label1<-c("0-100"),label2<-c("0-1000"),label3<-c("0-10000"),
+                  label4<-c("0.67-100"),label5<-c("0.67-1000"),label6<-c("0.67-10000"),
+                  label7<-c("0.84-100"),label8<-c("0.84-1000"),label9<-c("0.84-10000"),
+                  label10<-c("1.28-100"),label11<-c("1.28-1000"),label12<-c("1.28-10000"),
+                  label13<-c("1.65-100"),label14<-c("1.65-1000"),label15<-c("1.65-10000"),
+                  label16<-c("2.32-100"),label17<-c("2.32-1000"),label18<-c("2.32-10000"),
+                  label19<-c("2.58-100"),label20<-c("2.58-1000"),label21<-c("2.58-10000"),
+                  label22<-c("3.09-100"),label23<-c("3.09-1000"),label24<-c("3.09-10000"),
+                  label25<-c("3.72-100"),label26<-c("3.72-1000"),label27<-c("3.72-10000"))
+install.packages("ggplot2")
+install.packages("lattice")
+install.packages("plyr")
+install.packages("Rmisc")
+the plot of t=0
+p1<-ggplot(data=plot_data,aes(y=V1,x=label1))+geom_boxplot(
+  fill="thistle",colour="gray27")+
+  labs(title="Boxplot of error at t=0, n=100",y="error",
+       x=NULL)+theme(plot.title=element_text(size=13,hjust=0.5))
+p2<-ggplot(data=plot_data,aes(y=V2,x=label2))+geom_boxplot(
+  fill="thistle",colour="gray27")+
+  labs(title="Boxplot of error at t=0, n=1000",y="error",
+       x=NULL)+theme(plot.title=element_text(size=13,hjust=0.5))
+p3<-ggplot(data=plot_data,aes(y=V3,x=label3))+geom_boxplot(
+  fill="thistle",colour="gray27")+
+  labs(title="Boxplot of error at t=0, n=10000",y="error",
+       x=NULL)+theme(plot.title=element_text(size=13,hjust=0.5))
+g1<-multiplot(p1,p2,p3,cols=3)
+
+repeat the above steps for t=0.67,t=0.84,t=1.28,t=1.65,t=2.32,t=2.58,t=3.09,t=3.72
+
+# Acknowledgment 
+ Thanks for the Professor Jun Yan,if it were not for this course, I would not have learned this knowledge.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
